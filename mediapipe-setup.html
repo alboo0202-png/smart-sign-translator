@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MediaPipe Hands Setup Guide</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .code { background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .note { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <h1>MediaPipe Hands Integration Guide</h1>
+    
+    <div class="note">
+        <strong>Note:</strong> This is a setup guide for integrating MediaPipe Hands with your Smart Sign Translator. 
+        The current implementation uses placeholder detection - follow these steps to add real hand tracking.
+    </div>
+
+    <h2>1. Install MediaPipe</h2>
+    <div class="code">
+        npm install @mediapipe/hands @mediapipe/camera_utils @mediapipe/drawing_utils
+    </div>
+
+    <h2>2. Basic MediaPipe Setup</h2>
+    <div class="code">
+// Add this to your component
+import { Hands } from '@mediapipe/hands';
+import { Camera } from '@mediapipe/camera_utils';
+
+const hands = new Hands({
+  locateFile: (file) => {
+    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+  }
+});
+
+hands.setOptions({
+  maxNumHands: 2,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
+});
+    </div>
+
+    <h2>3. Hand Detection Callback</h2>
+    <div class="code">
+hands.onResults((results) => {
+  if (results.multiHandLandmarks) {
+    setHandsDetected(results.multiHandLandmarks.length > 0);
+    
+    // Process hand landmarks for sign language recognition
+    // This is where you'll integrate your AI model
+    processHandGestures(results.multiHandLandmarks);
+  }
+});
+    </div>
+
+    <h2>4. Camera Integration</h2>
+    <div class="code">
+const camera = new Camera(videoRef.current, {
+  onFrame: async () => {
+    await hands.send({image: videoRef.current});
+  },
+  width: 640,
+  height: 480
+});
+
+camera.start();
+    </div>
+
+    <h2>5. Sign Language Model Integration</h2>
+    <p>Replace the sample translations with your trained model:</p>
+    <div class="code">
+const processHandGestures = (landmarks) => {
+  // Extract features from hand landmarks
+  const features = extractFeatures(landmarks);
+  
+  // Run through your trained model
+  const prediction = yourSignLanguageModel.predict(features);
+  
+  // Update translation text
+  setTranslatedText(prediction.text);
+};
+    </div>
+
+    <div class="note">
+        <strong>Current Status:</strong> The app is ready for MediaPipe integration. 
+        The placeholder detection system simulates hand tracking and can be replaced 
+        with the actual MediaPipe implementation using the code above.
+    </div>
+</body>
+</html>
